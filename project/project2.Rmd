@@ -1,0 +1,287 @@
+---
+title: 'Project 2: Modeling, Testing, and Predicting'
+author: "SDS348"
+date: ''
+output:
+  html_document:
+    toc: yes
+    toc_float:
+      collapsed: no
+      smooth_scroll: yes
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+hook_output = knit_hooks$get('output')
+knit_hooks$set(output = function(x, options) {
+  # this hook is used only when the linewidth option is not NULL
+  if (!is.null(n <- options$linewidth)) {
+    x = knitr:::split_lines(x)
+    # any lines wider than n should be wrapped
+    if (any(nchar(x) > n)) x = strwrap(x, width = n)
+    x = paste(x, collapse = '\n')
+  }
+  hook_output(x, options)
+})
+
+knitr::opts_chunk$set(echo = TRUE, eval = TRUE,fig.align="center",warning=FALSE,message=FALSE,fig.width=8, fig.height=5, linewidth=60)
+options(tibble.width = 100,width = 100)
+library(tidyverse)
+```
+
+# Modeling
+
+
+**Dataset**
+
+```{r}
+library(tidyverse)
+spotify_songs <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-01-21/spotify_songs.csv')
+music <- spotify_songs %>% select(-track_id, -track_popularity, -playlist_id, -track_album_id, -mode, -playlist_subgenre, -liveness, -speechiness, -acousticness, -instrumentalness, -playlist_name, -key) %>% arrange(track_album_release_date) %>% filter(track_album_release_date > 2020)
+music <- music %>% mutate(pop=ifelse(playlist_genre == "pop",1,0), 
+                 edm=ifelse(playlist_genre == "edm",1,0),
+                 rb=ifelse(playlist_genre == "r&b",1,0),
+                 latin=ifelse(playlist_genre == "latin",1,0),
+                 rap=ifelse(playlist_genre == "rap",1,0),
+                 rock=ifelse(playlist_genre == "rock",1,0))
+head(music)
+```
+My dataset is about different kinds of music and certain characteristics about each song. It includes the track name, track artist, the album the track is on (track_album_name), the date the album was released (track_album_release_date). The categorical variable that I will use is playlist_genre which gives the genre of the playlist that the song is found in. It includes multiple groups such as pop, rap, rock, r&b, edm, and latin. The numerical data that is included in my dataset is danceability (how danceable the song is from 0-1), energy (a measure of intesity and activity of the song from 0-1), loudness (from -60db to 0db), valence (how positive or negative the song sounds from 0-1), tempo of the song (BPM), and the duration of the song in milliseconds. In total there are 785 observations or songs in the dataset. 
+
+I also made the categorical variable of playlist_genre, numerical by breaking it up into multiple variables and giving it the value of 1 if the song matches that playlist_genre and a 0 if that criteria is not met. For example, if the song is pop, under the variable of pop, there will be a 1 for that song. 
+
+
+- **MANOVA Testing** 
+
+```{r}
+#MANOVA test
+manova<-manova(cbind(danceability, energy, loudness, tempo)~playlist_genre, data=music)
+summary(manova)
+
+#Univariate ANOVAs
+summary.aov(manova)
+
+#Post-hoc T-tests
+pairwise.t.test(music$danceability,music$playlist_genre, p.adj="none")
+pairwise.t.test(music$energy,music$playlist_genre, p.adj="none")
+pairwise.t.test(music$loudness,music$playlist_genre, p.adj="none")
+pairwise.t.test(music$tempo,music$playlist_genre, p.adj="none")
+
+#Type 1 error rate
+1-(0.95)^65
+
+#Bonferroni
+0.05/65
+
+#Checking Assumptions
+library(rstatix)
+group <- music$playlist_genre
+DVs <- music %>% select(danceability,energy,loudness,tempo)
+
+sapply(split(DVs,group), mshapiro_test) #Test multivariate normality for each group
+
+box_m(DVs, group) #Box's M test - test homogeneity of vcov mats 
+```
+There was 1 MANOVA test, 4 ANOVA tests, and 60 pairwise t-tests for a total of 65 statistical tests that were done. The type 1 error rate is 0.9644 and the Bonferroni adjusted significance level is 0.000769 as opposed to the alpha value of 0.05. 
+
+Some significant findings include that when looking at danceability, pop and rap differ greatly. When looking at energy, edm differs from pop, r%b and rap also differ greatly. When looking at the loudness of a song, latin and rock do not significantly differ. And when looking at the tempo, pop and rock significantly differ again. These are just a couple observations from the multiple pairwise t-tests that were run.
+
+The assumptions of a MANOVA test include a random sample/independent observations, multivariate normality of dependent/response variables, homogeneity of within-group covariance matrices, linear relationships among dependent/response variables, no extreme univariate or multivariate outliers, no multicolinearity. After testing for the multivariate normality for each group, it was shown that that assumption was not met since the test gave all p-values less than 0.5. Also after testing for the homogeniety of within-group covariance matrices, the p-value was much less than 0.05 so we will reject the null that the assumption is met. 
+
+
+- **Randomization Test - Correlation**
+
+```{r}
+cor.test(music$loudness, music$energy)
+set.seed(123)
+samp<-replicate(5000, cor(sample(music$loudness), music$energy))
+hist(samp)
+```
+I performed a correlation test on my data to find whether the correlation between the loudness of the sound was correlated to the energy of the song. The null hypothesis is that there is no correlation between the loudness and the energy and the alternative hypothesis is that there is a significant correlation between the two variables. After running the test, I got a p-value of <2.2e-16 which is much less than the alpha value of 0.05, therefore we reject the null and can say with some confidence that there is a significant positive correlation of 0.741 between the loundess and energy of a song. Therefore, as the loudness of a song increases, so does the energy. 
+
+- **Linear Regression Model**
+    
+```{r}
+#Coefficient Estimates
+library(lmtest)
+library(sandwich)
+library(ggplot2)
+music$energy_c <- music$energy - mean(music$energy)
+music$loudness_c <- music$loudness - mean(music$loudness)
+music$danceability_c <- music$danceability - mean(music$danceability)
+fit1<-lm(energy_c~danceability_c*loudness_c, data=music)
+coeftest(fit1)
+
+#Regression Plot
+ggplot(music, aes(energy_c, loudness_c)) + geom_point() + geom_smooth(method="lm")
+
+#Check Assumptions
+plot(music$energy_c, music$loudness_c) #linearity
+bptest(fit1) #homoskedacity
+
+resids<-fit1$resid
+fitted<-fit1$fitted.values
+ks.test(resids, "pnorm", mean=0, sd(resids)) #Normality
+
+#Using Robust Standard Errors
+coeftest(fit1, vcov = vcovHC(fit1))
+
+#Proportion of variance
+summary(fit1)$r.sq
+```
+For decreasing the wordiness of this explanation, all the variables (danceability, energy and loudness) are mean centered. The intercept coefficient means that when danceability and loudness of a song is 0, the energy is -.000347. When controlling for loudness, -0.155 is the slope for danceability so for every 1 unit increase in danceability, there is a 0.155 decrease in energy. When controlling for danceability, there is a 0.0463 increase in energy for every 1 unit increase in loudness. The danceability:loudness coefficient gives the interaction between the two variables. This means that the slope for danceability minus the slope for loudness on energy is 0.0184 lower than a song with 0 danceability and 0 loudness. 
+
+When looking at a scatterplot of energy vs. loudness, we can eyeball that the data is linear, therefore the linearity assumption is met. When running the Breusch-Pagan test to test the homoskedacity, I get a the p-value that is less than 0.05. This means that the null that assumption is met, is rejected so the data is not homoskedastic. When running the Kolmogorov-Smirnov test to test the assumption of normality, we fail to reject the null and say that the data is normal, so that assumption is met. 
+
+When recomputing the linear regression with the robust standard errors, the coefficient estimates did not change but the standard errors and t values did. For the standard errors, the intercept did not change when using robust SEs but the danceabilty decreased slightly. However, both the standard errors for loudness and the interaction increased slightly. 
+
+The proportion of variation in the outcome that my model explains is 0.566.
+
+- **Bootstrapped Regression** 
+
+```{r}
+set.seed(123)
+boot_dat<- sample_frac(music, replace=T)
+
+samp_distn<-replicate(5000, {
+boot_dat <- sample_frac(music, replace=T)
+fit2 <- lm(energy_c~danceability_c*loudness_c, data=boot_dat) 
+coef(fit2) 
+})
+
+samp_distn %>% t %>% as.data.frame %>% summarize_all(sd)
+```
+All the variables in this explanation are mean centered even if they are not referred to as such each time. For the intercept SE and the loudness SE, the bootstrapped value gave a slightly lower SE than when using both the original and robust SEs. The danceability SE, however, increased slightly from the original and robust values. The bootstrapped SE for the interaction is less than the original but greater than the robust SE. 
+
+- **Logistic Regression Model**
+    
+```{r}
+#Logistic Regression
+fit3<-glm(rock~tempo+energy,data=music,family="binomial")
+coeftest(fit3)
+
+#Confusion Matrix
+prob1 <- predict(fit3, type="response")
+predict<- ifelse(prob1>.5,1,0)
+table(prediction=predict, actual=music$rock) %>% addmargins 
+737/785 #Accuracy
+48/48 #TPR
+737/737 #TNR
+0/0 #PPV
+
+library(plotROC)
+plotROC <- ggplot(music) + geom_roc(aes(d=rock, m=prob1), n.cuts=0) + geom_segment(aes(x=0, xend=1, y=0, yend=1),lty=2)
+plotROC
+calc_auc(plotROC)
+
+0.792 #AUC
+
+#Density Plot
+music$rock<-as.factor(music$rock)
+library(ggplot2)
+music$logit<-predict(fit3,type="link")
+music %>% ggplot(aes(logit, y=..density.., color=rock, fill=rock))+geom_density(alpha=0.4)+
+theme(legend.position="top") + geom_vline(xintercept=0) + xlab("predictor(logit)")
+```
+The intercept coefficient means that when tempo and energy of a song is 0, the binary vairable of rock is predicted to be -9.878. When controlling for energy, 0.0115 is the slope for tempo so for every 1 unit increase in tempo, there is a 0.0115 decrease in rock When controlling for tempo, there is a 7.498 increase in rock for every 1 unit increase in energy.
+
+The accuracy of the model is 0.939 because it is the proportion of rock songs that were classified as rock over the total number of songs. The TPR of 1 is the true positive rate or the sensitivity which is the proportion of rock songs that were classified as rock correctly. The TNR of 1 is the true negative rate which is the proportion of not rock songs that were correctly classified as not rock. The PPV is not possible to calculate since there are no predictions that a song will be rock, so the proportion classified as rock that actually are is NaN. The AUC of the model was calculated as 0.792 which is a fair AUC. 
+
+- **Logistic Regression - Classification Diagnostics, 10-fold CV, LASSO**
+
+```{r}
+music1 <- music %>% select(-track_name, -track_artist, -track_album_name, -track_album_release_date, -playlist_genre, -edm, -latin, -pop, -rap, -rb, -logit, -energy_c, -danceability_c, -loudness_c)
+
+#Logistic Regression
+fit4<-glm(rock~.,data=music1,family="binomial")
+coeftest(fit4)
+class_diag<-function(probs,truth){
+  tab<-table(factor(probs>.5,levels=c("FALSE","TRUE")),truth)
+  acc=sum(diag(tab))/sum(tab)
+  sens=tab[2,2]/colSums(tab)[2]
+  spec=tab[1,1]/colSums(tab)[1]
+  ppv=tab[2,2]/rowSums(tab)[2]
+  f1=2*(sens*ppv)/(sens+ppv)
+
+  if(is.numeric(truth)==FALSE & is.logical(truth)==FALSE){
+    truth<-as.numeric(truth)-1}
+  
+  #CALCULATE EXACT AUC
+  ord<-order(probs, decreasing=TRUE)
+  probs <- probs[ord]; truth <- truth[ord]
+  
+  TPR=cumsum(truth)/max(1,sum(truth)) 
+  FPR=cumsum(!truth)/max(1,sum(!truth))
+  
+  dup<-c(probs[-1]>=probs[-length(probs)], FALSE)
+  TPR<-c(0,TPR[!dup],1); FPR<-c(0,FPR[!dup],1)
+  
+  n <- length(TPR)
+  auc<- sum( ((TPR[-1]+TPR[-n])/2) * (FPR[-1]-FPR[-n]) )
+
+  data.frame(acc,sens,spec,ppv,f1,auc)
+}
+
+prob1 <- predict(fit4, data="response")
+class_diag(prob1,music1$rock)
+
+#10-fold CV
+set.seed(13)
+k=10
+
+data1<-music1[sample(nrow(music1)),]
+folds<-cut(seq(1:nrow(music1)),breaks=k,labels=F)
+
+diags<-NULL
+for(i in 1:k){
+  train<-data1[folds!=i,]
+  test<-data1[folds==i,]
+  truth<-test$rock
+  
+  fit<-glm(rock~.,data=train,family="binomial")
+  probs<-predict(fit,newdata = test,type="response")
+
+diags<-rbind(diags,class_diag(probs,truth))
+}
+
+diags%>%summarize_all(mean)
+
+#LASSO
+library(glmnet)
+matrix <- as.matrix(music1$rock)
+music_preds <- model.matrix(rock ~ ., data=music1)[,-1]
+head(music_preds)
+
+cv<- cv.glmnet(music_preds, matrix, family="binomial")
+lasso_fit <- glmnet(music_preds, matrix, family="binomial", lambda = cv$lambda.1se)
+coef(lasso_fit)
+
+#CV using LASSO variables
+set.seed(13)
+k=10
+data<-music1[sample(nrow(music1)),]
+folds<-cut(seq(1:nrow(music1)),breaks=k,labels=F) 
+diags<-NULL
+for(i in 1:k){
+train<-data[folds!=i,]
+test<-data[folds==i,]
+truth<-test$rock
+fit<-glm(rock~danceability+energy, data=train, family = "binomial")
+probs<-predict(fit,newdata = test,type="response")
+
+diags<-rbind(diags,class_diag(probs,truth))
+}
+summarize_all(diags, mean)
+```
+The accuracy, sensitivity, specificity, precision and AUC is 0.944, 0.188, 0.993, 0.643 and 0.908, respectively. This is the in-sample classification diagnostic so it makes sense for the AUC to be a great value. 
+
+For the out-sample 10-fold CV, the accuracy, sensitivity, specificity, precision and AUC is 0.944, 0.276, 0.989, NA, and 0.897, respectively. The AUC is just a good value as opposed to the great value of the in-sample classification diagnostics which makes sense for the AUC to decrease. 
+
+After performing the LASSO on the model, the variables that have values that will be retained are danceability and energy. Although duration_ms also has a value next to it, I decided that it was such a small number that it should be left out of the model too. 
+
+For the 10-fold CV done on the variables that LASSO chose, the accuracy, sensitivity, specificity, precision and AUC is 0.945, 0.253, 0.992, NA, and 0.883, respectively. The AUC in this case is also a good value like in the other 10-fold using all the variables. However, it is less than the AUC in that case, which is a little odd since the AUC should increase when using the variables that LASSO retains. This might be due to a sampling error, or since the values are so close, it might also just be a negligible difference. 
+
+
+
+
+

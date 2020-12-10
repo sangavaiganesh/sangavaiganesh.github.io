@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Sangavai Ganesh" />
+    
+    <link rel="shortcut icon" type="image/x-icon" href="../../img/favicon.ico">
+    <title>Project 1: Exploratory Data Analysis</title>
+    <meta name="generator" content="Hugo 0.79.0" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="../../css/main.css" />
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,400,200bold,400old" />
+    
+    <!--[if lt IE 9]>
+			<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+			<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+		<![endif]-->
+
+    
+  </head>
+
+  <body>
+    <div id="wrap">
+      
+      <nav class="navbar navbar-default">
+  <div class="container">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="../../"><i class="fa fa-home"></i></a>
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <div class="navbar-collapse collapse" id="navbar">
+      <ul class="nav navbar-nav navbar-right">
+      
+        
+        <li><a href="../../post/">BLOG</a></li>
+        
+        <li><a href="../../projects/">PROJECTS</a></li>
+        
+        <li><a href="../../resume/">RESUME</a></li>
+        
+      
+      </ul>
+    </div>
+  </div>
+</nav>
+
+      <div class="container">
+        <div class="blog-post">
+          <h3>
+            <strong><a href="../../project/project1/">Project 1: Exploratory Data Analysis</a></strong>
+          </h3>
+        </div>
+ 
+<div class="blog-title">
+          <h4>
+         January 1, 0001 
+            &nbsp;&nbsp;
+            
+          </h4>
+        </div>
+
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <div class="blogpost">
+              
+<script src="../../rmarkdown-libs/htmlwidgets/htmlwidgets.js"></script>
+<script src="../../rmarkdown-libs/plotly-binding/plotly.js"></script>
+<script src="../../rmarkdown-libs/typedarray/typedarray.min.js"></script>
+<script src="../../rmarkdown-libs/jquery/jquery.min.js"></script>
+<link href="../../rmarkdown-libs/crosstalk/css/crosstalk.css" rel="stylesheet" />
+<script src="../../rmarkdown-libs/crosstalk/js/crosstalk.min.js"></script>
+<link href="../../rmarkdown-libs/plotly-htmlwidgets-css/plotly-htmlwidgets.css" rel="stylesheet" />
+<script src="../../rmarkdown-libs/plotly-main/plotly-latest.min.js"></script>
+
+
+<div id="introduction" class="section level2">
+<h2>Introduction</h2>
+<p>The office_ratings dataset gives the season and episode number, title, IMDB rating, total votes by users, and the air date of each episode on the show. The seattle_weather data gives the precipitation (in inches), the maximum and minimum temperature and whether it rained or not in Seattle on a particular date since 1948 to 2017. There are 188 observations in the office_ratings dataset and 25551 observations in the seattle_weather dataset.</p>
+<p>I acquired the office_ratings dataset through github and I found the seattle_weather dataset on kaggle.com. I am interested in the office_ratings dataset because it's one of my favorite shows and I thought that this data might be interesting for me to work with. I don't expect there to be any real correlation between the two datasets because neither the weather nor the show's ratings would depend on the other.</p>
+</div>
+<div id="datasets-and-joining" class="section level2">
+<h2>Datasets and Joining</h2>
+<pre class="r"><code>library(tidyverse)
+office_ratings &lt;- readr::read_csv(&quot;https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-03-17/office_ratings.csv&quot;)
+seattleWeather_1948_2017 &lt;- read_csv(&quot;https://raw.githubusercontent.com/russellromney/seattle-weather/master/seattleWeather_1948-2017.csv&quot;)
+
+seattle_weather &lt;- seattleWeather_1948_2017
+head(office_ratings)</code></pre>
+<pre><code>## # A tibble: 6 x 6
+##   season episode title         imdb_rating total_votes air_date  
+##    &lt;dbl&gt;   &lt;dbl&gt; &lt;chr&gt;               &lt;dbl&gt;       &lt;dbl&gt; &lt;date&gt;    
+## 1      1       1 Pilot                 7.6        3706 2005-03-24
+## 2      1       2 Diversity Day         8.3        3566 2005-03-29
+## 3      1       3 Health Care           7.9        2983 2005-04-05
+## 4      1       4 The Alliance          8.1        2886 2005-04-12
+## 5      1       5 Basketball            8.4        3179 2005-04-19
+## 6      1       6 Hot Girl              7.8        2852 2005-04-26</code></pre>
+<pre class="r"><code>head(seattle_weather)</code></pre>
+<pre><code>## # A tibble: 6 x 5
+##   DATE        PRCP  TMAX  TMIN RAIN 
+##   &lt;date&gt;     &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;lgl&gt;
+## 1 1948-01-01  0.47    51    42 TRUE 
+## 2 1948-01-02  0.59    45    36 TRUE 
+## 3 1948-01-03  0.42    45    35 TRUE 
+## 4 1948-01-04  0.31    45    34 TRUE 
+## 5 1948-01-05  0.17    45    32 TRUE 
+## 6 1948-01-06  0.44    48    39 TRUE</code></pre>
+<pre class="r"><code>fulldata &lt;- office_ratings %&gt;% left_join(seattle_weather, by = c(air_date = &quot;DATE&quot;))
+25551 - 188</code></pre>
+<pre><code>## [1] 25363</code></pre>
+<pre class="r"><code>head(fulldata)</code></pre>
+<pre><code>## # A tibble: 6 x 10
+##   season episode title imdb_rating total_votes air_date    PRCP  TMAX  TMIN
+##    &lt;dbl&gt;   &lt;dbl&gt; &lt;chr&gt;       &lt;dbl&gt;       &lt;dbl&gt; &lt;date&gt;     &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+## 1      1       1 Pilot         7.6        3706 2005-03-24  0       54    41
+## 2      1       2 Dive…         8.3        3566 2005-03-29  0.13    50    41
+## 3      1       3 Heal…         7.9        2983 2005-04-05  0.07    58    42
+## 4      1       4 The …         8.1        2886 2005-04-12  0.06    49    36
+## 5      1       5 Bask…         8.4        3179 2005-04-19  0       62    40
+## 6      1       6 Hot …         7.8        2852 2005-04-26  0       65    54
+## # … with 1 more variable: RAIN &lt;lgl&gt;</code></pre>
+<p>After doing a left join, all the dates that were in the seattle_weather dataset that do not have a match in the office_ratings dataset are dropped, which was a total of 25363 observations. I chose to do a left join in particular because I want to be able to find the weather in Seattle for everyday that an episode of The Office aired. If I did a full join, there would be many rows with NAs that just included the weather on that day when no episode was aired. I don't anticipate there to be too many issues with the data that was dropped. If anything, I lost data that would create a more smooth trend of the weather if it were graphed, rather than random dates here and there.</p>
+</div>
+<div id="summary-statistics" class="section level2">
+<h2>Summary Statistics</h2>
+<pre class="r"><code>fulldata &lt;- fulldata %&gt;% mutate(freezing = ifelse(TMIN &lt; 32, 
+    &quot;yes&quot;, &quot;no&quot;)) %&gt;% rename(imdb.rating = imdb_rating) %&gt;% rename(total.votes = total_votes) %&gt;% 
+    rename(air.date = air_date)
+
+summary_stats &lt;- fulldata %&gt;% group_by(season) %&gt;% select(imdb.rating, 
+    total.votes, PRCP, TMAX, TMIN) %&gt;% summarize_all(c(mean = mean, 
+    sd = sd, min = min, max = max, median = median, var = var)) %&gt;% 
+    pivot_longer(-season) %&gt;% separate(name, into = c(&quot;var&quot;, 
+    &quot;stat&quot;), sep = &quot;_&quot;) %&gt;% pivot_wider(names_from = &quot;season&quot;, 
+    values_from = &quot;value&quot;) %&gt;% rename(season1 = &quot;1&quot;, season2 = &quot;2&quot;, 
+    season3 = &quot;3&quot;, season4 = &quot;4&quot;, season5 = &quot;5&quot;, season6 = &quot;6&quot;, 
+    season7 = &quot;7&quot;, season8 = &quot;8&quot;, season9 = &quot;9&quot;)
+
+fulldata %&gt;% filter(RAIN == T, freezing == &quot;yes&quot;) %&gt;% arrange(-PRCP)</code></pre>
+<pre><code>## # A tibble: 3 x 11
+##   season episode title imdb.rating total.votes air.date    PRCP  TMAX  TMIN
+##    &lt;dbl&gt;   &lt;dbl&gt; &lt;chr&gt;       &lt;dbl&gt;       &lt;dbl&gt; &lt;date&gt;     &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+## 1      8      12 Pool…         8          1612 2012-01-19  0.6     30    27
+## 2      3      11 Back…         8.5        2255 2007-01-04  0.15    42    30
+## 3      9      10 Lice          7.7        1470 2013-01-10  0.01    38    31
+## # … with 2 more variables: RAIN &lt;lgl&gt;, freezing &lt;chr&gt;</code></pre>
+<pre class="r"><code>fulldata &lt;- fulldata %&gt;% transform(season = as.character(season), 
+    episode = as.character(episode), RAIN = as.character(RAIN))
+
+fulldata %&gt;% select_if(is.numeric) %&gt;% cor(use = &quot;pair&quot;) %&gt;% 
+    round(4)</code></pre>
+<pre><code>##             imdb.rating total.votes    PRCP    TMAX   TMIN
+## imdb.rating      1.0000      0.6430 -0.0109  0.1434 0.0623
+## total.votes      0.6430      1.0000 -0.0218  0.1457 0.1378
+## PRCP            -0.0109     -0.0218  1.0000 -0.0904 0.0979
+## TMAX             0.1434      0.1457 -0.0904  1.0000 0.7864
+## TMIN             0.0623      0.1378  0.0979  0.7864 1.0000</code></pre>
+<pre class="r"><code>fulldata %&gt;% group_by(season) %&gt;% summarize(imdb_mean = mean(imdb.rating), 
+    PRCP_max = max(PRCP))</code></pre>
+<pre><code>## # A tibble: 9 x 3
+##   season imdb_mean PRCP_max
+##   &lt;chr&gt;      &lt;dbl&gt;    &lt;dbl&gt;
+## 1 1           8.02     0.13
+## 2 2           8.44     1.33
+## 3 3           8.57     1.55
+## 4 4           8.6      1.09
+## 5 5           8.49     2.15
+## 6 6           8.22     0.7 
+## 7 7           8.32     0.89
+## 8 8           7.67     0.94
+## 9 9           7.96     0.82</code></pre>
+<pre class="r"><code>fulldata %&gt;% group_by(RAIN, freezing) %&gt;% summarize(mean_tempmin = mean(TMIN))</code></pre>
+<pre><code>## # A tibble: 4 x 3
+## # Groups:   RAIN [2]
+##   RAIN  freezing mean_tempmin
+##   &lt;chr&gt; &lt;chr&gt;           &lt;dbl&gt;
+## 1 FALSE no               42.9
+## 2 FALSE yes              26.9
+## 3 TRUE  no               42.7
+## 4 TRUE  yes              29.3</code></pre>
+</div>
+<div id="visualizations" class="section level2">
+<h2>Visualizations</h2>
+<pre class="r"><code>cor_dat &lt;- fulldata %&gt;% select_if(is.numeric) %&gt;% cor(use = &quot;pair&quot;)
+
+cor_dat %&gt;% as.data.frame %&gt;% rownames_to_column(&quot;var1&quot;) %&gt;% 
+    pivot_longer(-1, &quot;var2&quot;, values_to = &quot;correlation&quot;) %&gt;% ggplot(aes(var1, 
+    var2, fill = correlation)) + geom_tile() + scale_fill_gradient2(low = &quot;yellow&quot;, 
+    mid = &quot;orange&quot;, high = &quot;red&quot;) + geom_text(aes(label = round(correlation, 
+    2)), color = &quot;black&quot;, size = 4) + theme(axis.text.x = element_text(angle = 90, 
+    hjust = 1)) + coord_fixed()</code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-2-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>fulldata %&gt;% ggplot(aes(air.date, imdb.rating, color = PRCP)) + 
+    geom_line() + xlab(&quot;Air Date of the Episode&quot;) + ylab(&quot;IMDB Rating&quot;) + 
+    scale_color_gradient(low = &quot;pink&quot;, high = &quot;blue&quot;) + theme(legend.position = &quot;bottom&quot;) + 
+    ggtitle(&quot;IMDB Rating According to the Air Date and Precipitation in Seattle&quot;) + 
+    scale_x_date(date_breaks = &quot;1 year&quot;)</code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-2-2.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>fulldata %&gt;% ggplot(aes(x = season, fill = RAIN)) + geom_bar(aes(y = TMIN), 
+    stat = &quot;summary&quot;, fun = mean) + xlab(&quot;Season of The Office&quot;) + 
+    ylab(&quot;Minimum Temperature (F)&quot;) + theme(legend.position = &quot;bottom&quot;) + 
+    ggtitle(&quot;The Average Minimum Temperature for Every Season of The Office&quot;) + 
+    scale_fill_brewer(palette = &quot;Pastel2&quot;)</code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-2-3.png" width="672" style="display: block; margin: auto;" /> The correlation heatmap gives a very easy visual of which numeric variables are more correlated than the others. I have made it so the higher correlations are red while the lower correlations are yellow. So of course the correlations for the same variable (ex. imdb.rating to imdb.rating) is a 1. The minimum and maximum tempuratures are highly correlated with a 0.79 correlation. You can also see that the total votes and the imdb ratings have a pretty high correlation of 0.64. Surprsingly, there is a low correlation between the precipitation and the maximum temperature of -0.09.</p>
+<p>In the second plot, the IMDB rating of each episode of The Office is graphed against the airdate of that episode. The precipitation level of each day in Seattle is graphed as the color. In the plot, you can see that in a general trend, as the dates go by, the ratings of the episodes declines. The precipitation levels seem to be low for the most part of the years, however it does increase every now and then but there doesn't seem to be any correlation to the air dates or the IMDB ratings of the episodes.</p>
+<p>In the last plot, the average mimimum temperature in Seattle is graphed for each season of The Office. The fill of the bars represents the frequency of whether it rained or not. The lowest minimum temperature is given for season 5 and the greatest minimum temperature is during season 4. The frequency of whether it rained or not is about 50% for each season. There is no/low correlation betwen the average minimum temperatures and the seasons of The Office.</p>
+</div>
+<div id="k-means-and-pam-clustering-or-pca" class="section level2">
+<h2>K-means and PAM Clustering or PCA</h2>
+<pre class="r"><code>library(cluster)
+dataframe &lt;- fulldata %&gt;% select(imdb.rating, total.votes, PRCP) %&gt;% 
+    scale %&gt;% as.data.frame
+
+sil_width &lt;- vector()
+for (i in 2:10) {
+    pam_fit &lt;- pam(dataframe, diss = TRUE, k = i)
+    sil_width[i] &lt;- pam_fit$silinfo$avg.width
+}
+ggplot() + geom_line(aes(x = 1:10, y = sil_width)) + scale_x_continuous(name = &quot;k&quot;, 
+    breaks = 1:10)</code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-3-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>pam &lt;- dataframe %&gt;% pam(2)
+
+dataframe &lt;- dataframe %&gt;% mutate(cluster = as.factor(pam$clustering))
+
+library(plotly)
+dataframe %&gt;% plot_ly(x = ~imdb.rating, y = ~total.votes, z = ~PRCP, 
+    color = ~cluster, type = &quot;scatter3d&quot;, mode = &quot;markers&quot;)</code></pre>
+<p><div id="htmlwidget-1" style="width:672px;height:480px;" class="plotly html-widget"></div>
+<script type="application/json" data-for="htmlwidget-1">{"x":{"visdat":{"119da56fba003":["function () ","plotlyVisDat"]},"cur_data":"119da56fba003","attrs":{"119da56fba003":{"x":{},"y":{},"z":{},"mode":"markers","color":{},"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d"}},"layout":{"margin":{"b":40,"l":60,"t":25,"r":10},"scene":{"xaxis":{"title":"imdb.rating"},"yaxis":{"title":"total.votes"},"zaxis":{"title":"PRCP"}},"hovermode":"closest","showlegend":true},"source":"A","config":{"showSendToCloud":false},"data":[{"x":[-1.22186719746516,-0.664316146194646,-0.85016649661815,-0.10676509492414,0.636636306769871,-0.664316146194646,-0.10676509492414,-0.292615445347642,-0.10676509492414,-0.478465795771144,-0.10676509492414,-0.478465795771144,-0.10676509492414,0.822486657193373,-0.10676509492414,0.079085255499365,0.822486657193373,-0.292615445347642,-0.664316146194646,0.079085255499365,-0.292615445347642,-0.292615445347642,-0.292615445347642,0.450785956346369,-0.10676509492414,-0.292615445347642,-0.10676509492414,-0.10676509492414,-0.292615445347642,0.079085255499365,0.264935605922867,0.079085255499365,0.079085255499365,-0.10676509492414,-0.478465795771144,-1.03601684704165,-0.10676509492414,-0.10676509492414,-0.10676509492414,0.079085255499365,-2.70867000085318,-0.85016649661815,-0.292615445347642,0.264935605922867,-0.85016649661815,-0.664316146194646,0.636636306769871,-0.664316146194646,-0.478465795771144,-0.10676509492414,-0.664316146194646,-0.478465795771144,0.264935605922867,0.079085255499365,-0.10676509492414,-0.664316146194646,-0.85016649661815,-0.10676509492414,-1.40771754788866,-0.664316146194646,-0.85016649661815,-0.10676509492414,0.079085255499365,-1.03601684704165,0.264935605922867,-1.40771754788866,-0.85016649661815,-1.03601684704165,-0.10676509492414,-0.10676509492414,-1.77941824873566,-0.292615445347642,-1.22186719746516,-0.85016649661815,-1.03601684704165,-2.33696930000617,-1.03601684704165,-0.478465795771144,-0.664316146194646,-0.478465795771144,-1.40771754788866,-0.85016649661815,-0.664316146194646,-0.292615445347642,-0.85016649661815,-0.85016649661815,-2.89452035127668,-1.96526859915917,-2.15111894958267,-2.15111894958267,-1.03601684704165,-0.85016649661815,-1.03601684704165,-1.96526859915917,-1.40771754788866,-0.664316146194646,-2.15111894958267,-0.85016649661815,-1.03601684704165,-0.85016649661815,0.264935605922867,-1.03601684704165,-0.664316146194646,-0.478465795771144,-1.03601684704165,-1.22186719746516,-1.59356789831216,-0.10676509492414,-1.40771754788866,-0.478465795771144,-0.478465795771144,-0.478465795771144],"y":[2.00654875545786,1.08798493299895,0.921550824088694,0.537863031028402,0.701756161176673,0.273601239781579,0.249461941542687,0.267248792876608,0.188478451254958,0.234216068970755,0.161798174254077,0.245650473399704,0.312986410592404,0.526428626599453,0.161798174254077,-0.0211522966091081,0.0957327264423714,-0.0402096373240232,-0.190127384281356,-0.173611022328429,-0.219348640044225,-0.308282896713829,-0.209184724996271,-0.138037319660588,-0.329881216190733,-0.219348640044225,-0.366725408239569,-0.404840089669399,-0.35529100381062,-0.319717301142779,-0.333692684333716,-0.334963173714711,-0.357831982572609,-0.4721760268621,-0.477257984386077,-0.378159812668518,-0.492503856958009,-0.530618538387839,-0.509020218910936,-0.185045426757378,0.204994813207885,-0.566192241055681,-0.580167624246619,-0.478528473767071,-0.61574132691446,-0.657667476487274,-0.322258279904767,-0.652585518963296,-0.627175731343409,-0.634798667629375,-0.705946072965059,-0.637339646391364,-0.291766534760903,-0.562380772912698,-0.412463025955366,-0.605577411866506,-0.653856008344291,-0.589061049913579,-0.582708603008607,-0.627175731343409,-0.671642859678211,-0.591602028675568,-0.54840538972176,-0.648774050820313,-0.496315325100992,-0.693241179155115,-0.599224964961534,-0.625905241962415,-0.378159812668518,-0.582708603008607,-0.667831391535228,-0.520454623339885,-0.7415197756329,-0.826642564159521,-0.716109988013013,-0.689429711012132,-0.728814881822957,-0.736437818108923,-0.811396691587589,-0.653856008344291,-0.824101585397532,-0.882544096923272,-0.768200052633781,-0.711028030489036,-0.824101585397532,-0.886355565066255,-0.61574132691446,-0.810126202206595,-0.688159221631138,-0.855863819922391,-0.932093182782052,-0.841888436731453,-0.698323136679093,-0.825372074778527,-0.845699904874436,-0.731355860584946,-0.777093478300742,-0.853322841160402,-0.915576820829125,-0.874921160637306,-0.625905241962415,-0.834265500445487,-0.871109692494323,-0.785986903967702,-0.930822693401057,-0.920658778353103,-0.914306331448131,-0.704675583584064,-0.597954475580539,-0.866027734970346,-0.816478649111566,-0.819019627873555],"z":[-0.443219065633897,-0.19865877616882,-0.443219065633897,2.17706975006336,4.20342643420257,-0.128784407750227,0.604896460645004,-0.443219065633897,-0.443219065633897,-0.443219065633897,0.22058743434274,3.22518527634226,-0.30347032879671,4.97204448680709,-0.443219065633897,-0.4082818814246,3.36493401317944,-0.4082818814246,-0.443219065633897,-0.443219065633897,-0.233595960378117,-0.0589100393316333,-0.443219065633897,7.0682755393649,-0.268533144587414,-0.443219065633897,-0.4082818814246,-0.443219065633897,-0.268533144587414,-0.163721591959523,-0.443219065633897,-0.338407513006007,-0.443219065633897,-0.443219065633897,-0.163721591959523,-0.19865877616882,0.430210539598521,0.884393934319378,2.00238382901687,-0.443219065633897,-0.443219065633897,-0.163721591959523,0.395273355389224,-0.268533144587414,0.884393934319378,-0.443219065633897,1.7228863553425,-0.443219065633897,-0.443219065633897,-0.443219065633897,-0.443219065633897,0.290461802761334,0.465147723807817,-0.443219065633897,-0.443219065633897,-0.0239728551223366,-0.443219065633897,-0.19865877616882,-0.443219065633897,0.0109643290869602,0.255524618552037,-0.443219065633897,-0.268533144587414,-0.443219065633897,-0.443219065633897,-0.443219065633897,0.954268302737971,-0.338407513006007,-0.443219065633897,-0.443219065633897,-0.0589100393316333,-0.443219065633897,-0.443219065633897,-0.443219065633897,-0.443219065633897,0.535022092226411,-0.443219065633897,-0.443219065633897,-0.443219065633897,1.65301198692391,-0.443219065633897,-0.09384722354093,-0.19865877616882,-0.443219065633897,-0.443219065633897,-0.443219065633897,2.84087625003999,-0.373344697215304,1.05907985536586,0.0808386975055535,2.10719538164476,-0.443219065633897,-0.443219065633897,-0.443219065633897,-0.443219065633897,2.42163003952843,-0.443219065633897,-0.443219065633897,-0.443219065633897,-0.233595960378117,-0.233595960378117,-0.4082818814246,-0.443219065633897,0.360336171179927,-0.0239728551223366,-0.0239728551223366,-0.268533144587414,-0.30347032879671,-0.0589100393316333,0.709708013272894,-0.233595960378117,-0.443219065633897],"mode":"markers","type":"scatter3d","name":"1","marker":{"color":"rgba(102,194,165,1)","line":{"color":"rgba(102,194,165,1)"}},"textfont":{"color":"rgba(102,194,165,1)"},"error_y":{"color":"rgba(102,194,165,1)"},"error_x":{"color":"rgba(102,194,165,1)"},"line":{"color":"rgba(102,194,165,1)"},"frame":null},{"x":[0.079085255499365,-0.292615445347642,0.264935605922867,0.822486657193373,-0.10676509492414,0.264935605922867,0.264935605922867,-0.10676509492414,0.636636306769871,-0.10676509492414,0.264935605922867,1.00833700761688,1.38003770846388,0.079085255499365,0.079085255499365,0.264935605922867,0.079085255499365,0.264935605922867,0.822486657193373,1.93758875973439,1.19418735804038,0.450785956346369,0.450785956346369,0.822486657193373,0.450785956346369,0.636636306769871,1.00833700761688,0.079085255499365,1.00833700761688,0.450785956346369,1.19418735804038,1.00833700761688,0.822486657193373,1.00833700761688,1.56588805888738,1.93758875973439,1.00833700761688,0.264935605922867,0.450785956346369,0.822486657193373,1.00833700761688,0.450785956346369,1.93758875973439,0.822486657193373,0.264935605922867,1.93758875973439,1.00833700761688,0.636636306769871,0.822486657193373,0.264935605922867,0.822486657193373,2.4951398110049,0.822486657193373,0.822486657193373,0.822486657193373,1.56588805888738,0.822486657193373,1.19418735804038,0.822486657193373,1.93758875973439,1.93758875973439,0.636636306769871,0.636636306769871,0.450785956346369,0.450785956346369,1.19418735804038,0.450785956346369,1.93758875973439,1.75173840931089,1.19418735804038,2.6809901614284,0.822486657193373,1.00833700761688,1.19418735804038,1.93758875973439,2.6809901614284],"y":[1.82868024211865,0.964747463042502,1.33700085167384,1.38019749062765,0.77417405589335,0.781796992179316,0.74495280013048,0.55183841421934,0.640772670888944,0.367617453975161,0.508641775265533,0.798313354132243,1.46786125791626,0.300281516782461,0.277412707924562,0.427330454881895,0.366346964594166,0.343478155736268,0.398109199119025,1.92777841383621,1.22011582862236,0.332043751307319,0.169421110540043,0.316797878735387,0.163068663635072,0.240568515875726,0.385404305309081,0.198642366302913,0.629338266459995,0.174503068064021,0.544215477933374,0.377781369023115,0.3587240283082,0.351101092022234,0.833887056800084,1.1222881462858,0.888518100182841,0.154175237968111,0.0588885343935355,0.272330750400585,0.332043751307319,0.0741344069654676,2.50076912466466,0.0665114706795015,-0.050373552371978,1.1222881462858,0.47560905135968,-0.0478325736099893,-0.0719718718488818,-0.223160108187209,-0.146930745327548,4.85498594764718,-0.177422490471412,-0.120250468326667,-0.271438704664994,0.485772966407635,-0.0249637647520911,0.133847407872202,0.000446022867795726,1.84519660407158,-0.22951255509218,-0.266356747141016,-0.140578298422576,-0.359102471953603,-0.454389175528179,0.0144214060587335,-0.488692388815026,1.77659017749789,0.781796992179316,0.0703229388224846,4.6021585608293,-0.364184429477581,-0.110086553278712,-0.108816063897718,0.931714739136649,7.37817785830194],"z":[0.0109643290869602,-0.233595960378117,-0.443219065633897,-0.443219065633897,-0.443219065633897,-0.443219065633897,0.150713065924147,-0.373344697215304,-0.30347032879671,-0.443219065633897,-0.443219065633897,-0.443219065633897,1.54820043429602,0.11577588171485,-0.443219065633897,-0.373344697215304,-0.233595960378117,-0.443219065633897,-0.443219065633897,-0.443219065633897,0.150713065924147,-0.443219065633897,1.37351451324953,-0.443219065633897,0.0808386975055535,-0.443219065633897,0.11577588171485,-0.4082818814246,-0.0239728551223366,0.0109643290869602,-0.443219065633897,-0.443219065633897,-0.443219065633897,-0.4082818814246,-0.443219065633897,-0.443219065633897,0.360336171179927,-0.19865877616882,-0.443219065633897,0.360336171179927,-0.443219065633897,-0.373344697215304,-0.4082818814246,-0.443219065633897,-0.443219065633897,-0.443219065633897,-0.128784407750227,0.0808386975055535,-0.443219065633897,-0.443219065633897,-0.443219065633897,-0.443219065633897,-0.443219065633897,-0.338407513006007,-0.4082818814246,-0.233595960378117,-0.443219065633897,0.674770829063598,-0.443219065633897,-0.443219065633897,-0.443219065633897,-0.373344697215304,-0.443219065633897,-0.443219065633897,-0.268533144587414,2.66619032899351,-0.4082818814246,-0.0589100393316333,0.360336171179927,-0.443219065633897,-0.30347032879671,-0.443219065633897,-0.443219065633897,-0.443219065633897,-0.443219065633897,-0.443219065633897],"mode":"markers","type":"scatter3d","name":"2","marker":{"color":"rgba(141,160,203,1)","line":{"color":"rgba(141,160,203,1)"}},"textfont":{"color":"rgba(141,160,203,1)"},"error_y":{"color":"rgba(141,160,203,1)"},"error_x":{"color":"rgba(141,160,203,1)"},"line":{"color":"rgba(141,160,203,1)"},"frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script> When looking at the graph of the clusters in the 3 variables, you can see that the IMDB rating and the total votes are related in that when one increases so does the other. However, the precipitation level doesn't seem related to either of the other 2 variables.</p>
+<p>In the first line of code, I am selecting the 3 variables (imdb rating, total votes and precipitation level) that I want to focus on, scaling it, converting it to a data frame and then saving it in its own dataset. Then to check how many clusters I should use, I use the silhouette method and I pick the number of clusters with the highest average silhouette width after graphing. This tells me that 2 clusters would be ideal for this data. In the next line, I run the PAM with the 2 clusters. After that, I overwrite the dataframe dataset to include a column for cluster number for each point in the data. In the last line of code, I graph the 3 variables onto a 3D plot to visualize the clustering.</p>
+</div>
+
+            
+        <hr>         <div class="related-posts">
+                <h5>Related Posts</h5>
+                
+              </div> 
+            </div>
+          </div>
+
+   <hr>  <div class="disqus">
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+
+    (function() {
+      
+      
+      if (window.location.hostname == "localhost")
+        return;
+
+      var disqus_shortname = '';
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  <a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div> 
+        </div>
+      </div>
+    </div>
+
+    
+    <footer>
+  <div id="footer">
+    <div class="container">
+      <p class="text-muted">&copy; All rights reserved. Powered by <a href="https://gohugo.io/">Hugo</a> and
+      <a href="http://www.github.com/nurlansu/hugo-sustain/">sustain</a> with ♥</p>
+    </div>
+  </div>
+</footer>
+<div class="footer"></div>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="../../js/docs.min.js"></script>
+<script src="../../js/main.js"></script>
+
+<script src="../../js/ie10-viewport-bug-workaround.js"></script>
+
+
+    
+  </body>
+</html>

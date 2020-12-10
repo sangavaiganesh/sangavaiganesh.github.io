@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Projects on Sangavai Ganesh</title>
+    <link>/project/</link>
+    <description>Recent content in Projects on Sangavai Ganesh</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-US</language><atom:link href="/project/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Project 1: Exploratory Data Analysis</title>
+      <link>/project/project1/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/project/project1/</guid>
+      <description>Introduction The office_ratings dataset gives the season and episode number, title, IMDB rating, total votes by users, and the air date of each episode on the show. The seattle_weather data gives the precipitation (in inches), the maximum and minimum temperature and whether it rained or not in Seattle on a particular date since 1948 to 2017. There are 188 observations in the office_ratings dataset and 25551 observations in the seattle_weather dataset.</description>
+    </item>
+    
+    <item>
+      <title>Project 2: Modeling, Testing, and Predicting</title>
+      <link>/project/project2/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/project/project2/</guid>
+      <description>Modeling Dataset
+library(tidyverse) spotify_songs &amp;lt;- readr::read_csv(&amp;#39;https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-01-21/spotify_songs.csv&amp;#39;) music &amp;lt;- spotify_songs %&amp;gt;% select(-track_id, -track_popularity, -playlist_id, -track_album_id, -mode, -playlist_subgenre, -liveness, -speechiness, -acousticness, -instrumentalness, -playlist_name, -key) %&amp;gt;% arrange(track_album_release_date) %&amp;gt;% filter(track_album_release_date &amp;gt; 2020) music &amp;lt;- music %&amp;gt;% mutate(pop=ifelse(playlist_genre == &amp;quot;pop&amp;quot;,1,0), edm=ifelse(playlist_genre == &amp;quot;edm&amp;quot;,1,0), rb=ifelse(playlist_genre == &amp;quot;r&amp;amp;b&amp;quot;,1,0), latin=ifelse(playlist_genre == &amp;quot;latin&amp;quot;,1,0), rap=ifelse(playlist_genre == &amp;quot;rap&amp;quot;,1,0), rock=ifelse(playlist_genre == &amp;quot;rock&amp;quot;,1,0)) head(music) ## # A tibble: 6 x 17 ## track_name track_artist track_album_name track_album_rel… playlist_genre danceability energy ## &amp;lt;chr&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; ## 1 Now &amp;amp; For… 香取慎吾 20200101 2020-01-01 pop 0.</description>
+    </item>
+    
+  </channel>
+</rss>
