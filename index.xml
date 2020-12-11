@@ -8,24 +8,13 @@
     <language>en-US</language>
     <lastBuildDate>Thu, 10 Dec 2020 00:00:00 +0000</lastBuildDate><atom:link href="/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>Blog Post</title>
+      <title>Reticulate with Python and R</title>
       <link>/post/2020/12/10/blog-post/</link>
       <pubDate>Thu, 10 Dec 2020 00:00:00 +0000</pubDate>
       
       <guid>/post/2020/12/10/blog-post/</guid>
-      <description>Hi my name is Sangavai
-Link to project 1 Link ot google</description>
-    </item>
-    
-    <item>
-      <title>Hello R Markdown</title>
-      <link>/post/2015/07/23/hello-r-markdown/</link>
-      <pubDate>Thu, 23 Jul 2015 21:13:14 -0500</pubDate>
-      
-      <guid>/post/2015/07/23/hello-r-markdown/</guid>
-      <description>R Markdown This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see http://rmarkdown.rstudio.com.
-You can embed an R code chunk like this:
-summary(cars) ## speed dist ## Min. : 4.0 Min. : 2.00 ## 1st Qu.:12.0 1st Qu.: 26.00 ## Median :15.0 Median : 36.00 ## Mean :15.4 Mean : 42.98 ## 3rd Qu.</description>
+      <description>Something that is useful when coding is to be able to use Python in an R interface so that you can use both languages. Just like if you were bilingual, it is useful to be able to switch between the two languages to execute different functions to the best that it could be.
+When using reticulate, you can bring information that you used in R to Python and vice versa.</description>
     </item>
     
     <item>
@@ -65,7 +54,9 @@ library(tidyverse) spotify_songs &amp;lt;- readr::read_csv(&amp;#39;https://raw.
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>/resume/</guid>
-      <description>    </description>
+      <description>SANGAVAI GANESH sangavai.ganesh@utexas.edu 2700 Nueces St Apt 408 • Austin, TX 78705 • 512-913-4745
+EDUCATION August 2017 - May 2021 University of Texas at Austin – Austin, TX Bachelor in Science and Arts Biology Major Health Science Scholars Honors Program Pre-medical Student Business Minor
+WORK EXPERIENCE Austin Public Health - Austin, TX Intern in the Maternal Infant Outreach Program • Evaluate the current effectiveness of the program by coordinating with similar programs for future improvements • Develop and implement methods to increase retention of mothers in the program Sanger Learning Center - Austin, TX Fall 2019 - Present Academic Tutor • Tutor other students in the learning center of the university one-on-one and in group setting in general chemistry, biology and organic chemistry</description>
     </item>
     
   </channel>

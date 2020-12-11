@@ -1,5 +1,5 @@
 ---
-title: Blog Post
+title: Reticulate with Python and R
 author: ''
 date: '2020-12-10'
 slug: blog-post
@@ -7,10 +7,31 @@ categories: []
 tags: []
 description: ''
 ---
-Hi my name is Sangavai
+Something that is useful when coding is to be able to use Python in an R interface so that you can use both languages. Just like if you were bilingual, it is useful to be able to switch between the two languages to execute different functions to the best that it could be.  
 
- [Link to project 1](/projects/project1/)
- [Link ot google](https://www.google.com)
+When using reticulate, you can bring information that you used in R to Python and vice versa. 
+Here we are defining "What starts here" as UT in an R code chunk
+
+```{r}
+library(reticulate)
+UT<-"What starts here"
+```
+
+We then are saving "changes the world" as UT but this time in a Python code chunk. 
+We can now print both the UT that we defined in R and the UT that we have defined in Python to read "What starts here changes the world" in a Python code chunk.
+
+```{python}
+UT2="changes the world"
+print(r.UT,UT2) 
+```
  
- 
+We can also do the same in combining the UT from the R and the UT from the Python to read the same message in an R code chunk. 
+```{r}
+cat(c(UT,py$UT2)) 
+```
+Overall, I had a great time in this class and learned a lot of skills that I was could not even comprehend doing before!
+
+Here is a picture of my friend's dog!
+
+![](/post/2020-12-10-blog-post_files/IMG_8384.jpg)
  
